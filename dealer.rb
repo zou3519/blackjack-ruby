@@ -13,55 +13,58 @@ class Dealer < Player
 	end
 
 	# dealer makes no bets
-	def make_bet ; end
-	def win_bet ; end
-	def lose_bet ; end
+	def make_initial_bet ; end
+	def win_bet(hand) ; end
+	def lose_bet(hand) ; end
 
 	def take_turn(game)
-		self.turn_over = false
 
-		while not self.turn_over
-			clear_console
-			puts DEALER_TURN
-			game.print_state_of_game
-			#print (self.to_string + "\n")
-			if self.value_of_cards >= 17 and !self.busted
-				self.turn_over = true
-			else
-				# dealer will hit until he gets >= 17 points
-				# parse the option
-				self.draw(game.deck, false)
-				self.check_busted
-			end
-		end
+    self.hands.each do |hand|
+      while not hand.finished_playing
+        # print the state
+				clear_console
+				puts DEALER_TURN
+        game.print_state_of_game
 
-		# print self.to_string + "\n"
-		clear_console
-		puts DEALER_TURN
-		game.print_state_of_game
-		puts "Dealer ends his turn (Press enter to continue)"
-		gets
-	end
-
-	def to_string
-		sep = "\n| "
-		s = "Dealer" + sep
-		if self.busted
-			s += "Value of cards: busted" + sep
-		else
-			s += "Value of cards: " + self.value_of_cards.to_s + sep
-		end
-		s += self.cards_to_string + "\n" 
-		return s
-	end
-
-	def to_string_short
-    sep = " | "
-    result = "Dealer" 
-    if self.busted
-      result += sep + "busted"
+        # ask for the input
+		    if hand.value? >= 17 and not hand.is_busted?
+					hand.end_play!
+				else
+					# dealer will hit until he gets >= 17 points
+					# parse the option
+					self.draw(game.deck, hand, silent = false)
+					self.check_busted hand
+				end
+      end
     end
-    result += sep +  cards_to_string
+    puts "The dealer ends his turn."
+    wait_for_newline
+  end
+
+
+	# def to_string
+	# 	sep = "\n| "
+	# 	s = "Dealer" + sep
+	# 	if self.busted
+	# 		s += "Value of cards: busted" + sep
+	# 	else
+	# 		s += "Value of cards: " + self.value_of_cards.to_s + sep
+	# 	end
+	# 	s += self.cards_to_string + "\n" 
+	# 	return s
+	# end
+
+  def to_string_short
+    sep = " | "
+    result = "Dealer\n"
+    hands.each do |hand|
+      result += "\\ "
+      if hand.is_busted?
+        result += "<busted>" + sep
+      end
+      result += "hand: "
+      result += hand.to_string + "\n"
+    end
     return result
   end
 end

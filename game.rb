@@ -54,39 +54,50 @@ class Game
           # clear the players' cards and have them make bets
           player.reset_cards
           if not player.is_dealer
-            player.make_bet
+            player.make_initial_bet
           end
         end
         player.draw(deck)
       end
     end
 
+    # let every player take their turns
     players.each do |player|
       clear_console
       player.take_turn(self)
     end
 
-    # everyone wins
-    if dealer.busted
+    print "calculate: "
+    # now, calculate how much people win
+    # everyone wins if the dealer goes bust
+    if dealer.hands[0].is_busted?
       players.each do |player|
-        if not player.busted
-          player.win_bet
+        player.hands.each do |hand|
+          if not hand.is_busted?
+            player.win_bet hand
+            print "won"
+          end
         end
       end
     else
       players.each do |player|
-        if not player.is_dealer and not player.busted
-          if player.value_of_cards > dealer.value_of_cards
-            player.win_bet
-          elsif player.value_of_cards < dealer.value_of_cards
-            player.lose_bet
-          else
-            player.return_bet # dealer and player are tied
+        player.hands.each do |hand|
+          if not player.is_dealer and not hand.is_busted?
+            if hand.value? > dealer.hands[0].value?
+              player.win_bet hand
+              print "won"
+            elsif hand.value? < dealer.hands[0].value?
+              player.lose_bet hand
+              print "lost"
+            else
+              player.return_bet hand # dealer and player are tied
+              print "tie"
+            end
           end
         end
       end
     end
-
+    gets
     print_round_summary
   end
 
@@ -95,7 +106,7 @@ class Game
     clear_console
     puts "---------- Round Summary ------------"
     for player in players
-      puts player.to_string
+      puts player.to_string_short
     end
     wait_for_newline
   end
