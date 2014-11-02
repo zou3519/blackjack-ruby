@@ -18,10 +18,11 @@ class Dealer < Player
 	def lose_bet ; end
 
 	def take_turn(game)
-		puts DEALER_TURN
 		self.turn_over = false
 
 		while not self.turn_over
+			clear_console
+			puts DEALER_TURN
 			game.print_state_of_game
 			#print (self.to_string + "\n")
 			if self.value_of_cards >= 17 and !self.busted
@@ -34,7 +35,10 @@ class Dealer < Player
 			end
 		end
 
-		print self.to_string + "\n"
+		# print self.to_string + "\n"
+		clear_console
+		puts DEALER_TURN
+		game.print_state_of_game
 		puts "Dealer ends his turn (Press enter to continue)"
 		gets
 	end
@@ -53,10 +57,11 @@ class Dealer < Player
 
 	def to_string_short
     sep = " | "
-    result = "Dealer" + sep +  cards_to_string
+    result = "Dealer" 
     if self.busted
       result += sep + "busted"
     end
+    result += sep +  cards_to_string
     return result
   end
 end

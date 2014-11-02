@@ -55,12 +55,15 @@ class Player
     self.cash += 2*self.bet
   end
 
+  def return_bet
+    self.cash += self.bet
+  end
+
   def lose_bet ; end # tis very unfortunate
 
   # the main loop of a player's turn
   def take_turn(game)
     clear_console
-    print "Player " + self.id.to_s + "'s turn.\n"
     self.turn_over = false
 
     # turn counter
@@ -68,6 +71,8 @@ class Player
 
     while not self.turn_over
       # print the state
+      clear_console
+      print "Player " + self.id.to_s + "'s turn.\n"
       game.print_state_of_game
 
       # ask for the input
@@ -118,8 +123,8 @@ class Player
       puts "You chose double down!"
 
       if self.cash >= self.bet
-        self.bet = 2*self.bet
         self.cash -= self.bet
+        self.bet = 2*self.bet
 
         # now, draw again
         self.draw game.deck, silent = false
@@ -153,9 +158,6 @@ class Player
   def draw(deck, silent = true, cards_list = self.cards)
     card = deck.draw 
     cards_list << card 
-    if card.rank.eql? "Ace"
-      @num_aces += 1
-    end
     if not silent
       print card.to_string + " drawn. (Press enter to continue)"
       gets
@@ -163,8 +165,8 @@ class Player
     end
   end
 
-  def check_busted (cards_list = self.cards)
-    if self.value_of_cards cards_list > 21
+  def check_busted (hand = self.cards)
+    if self.value_of_cards > 21
       puts "Busted!"
       wait_for_newline
       self.lose_bet
@@ -173,14 +175,10 @@ class Player
     end
   end
 
-  # returns the value of all the cards.
-  # sets all the aces to 1's or 11's such that
-  # we get the maximum value 21 and under, if possible,
-  # otherwise the minimum value over 21.
-  def value_of_cards (cards_list = self.cards)
+  def value_of_cards
     value = 0  
     num_aces = 0
-    for card in cards_list
+    for card in self.cards
       if card.rank == "Ace"
         num_aces += 1
       end
@@ -194,6 +192,7 @@ class Player
     end
     return value
   end
+
 
   def cards_to_string
     s = ""
@@ -213,6 +212,7 @@ class Player
       result += "busted"
     else 
       result += "bet: $" + self.bet.to_s
+    end
     result +=  sep + cards_to_string
     return result
   end
@@ -220,16 +220,16 @@ class Player
   def to_string
     sep = "\n| "
     s = "Player " + self.id.to_s + sep + "$" + self.cash.to_s + sep 
-    s += "Bet: " + self.bet.to_s + sep
+    # s += "Bet: " + self.bet.to_s + sep
     if self.busted
       s += "Value of cards: busted" + sep
     else
       s += "Value of cards: " + self.value_of_cards.to_s + sep
     end
-    s += "Cards" + self.cards_to_string + "\n" 
+    s += "Cards: " + self.cards_to_string + "\n" 
   end
 
   def is_dealer
-    return self.id == DEALER_ID
+    self.id == DEALER_ID
   end
 end

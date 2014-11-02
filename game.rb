@@ -80,6 +80,8 @@ class Game
             player.win_bet
           elsif player.value_of_cards < dealer.value_of_cards
             player.lose_bet
+          else
+            player.return_bet # dealer and player are tied
           end
         end
       end
