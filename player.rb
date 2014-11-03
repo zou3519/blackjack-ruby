@@ -190,7 +190,7 @@ class Player
   def win_bet(hand)
     # if you have a blackjack, win 3:2 and get original bet back
     if hand.is_blackjack?
-      self.cash += hand.bet + 1.5*hand.bet
+      self.cash += hand.bet + (1.5*hand.bet).round
     else
       self.cash += 2*hand.bet
     end

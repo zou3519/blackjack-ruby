@@ -34,3 +34,20 @@ Files
 inherits from Player
 * prompt.rb - Contains command-line printing and prompting utilities
 * game.rb - Contains the main Game class and information
+
+Specifications
+====================
+
+The program begins by asking how many players are at the table
+and starts each player off with $1000.  Players may make only
+integer bets.  Players can choose to hit until they go over 21.
+The dealer must hit on 16 and stay on everything above 17.  
+Doubling-down is supported and may only occur
+when the player has two cards and if the player has enough cash. In addition,
+a player who chooses to double down will exactly double his bet and
+end his/her turn after receiving one more card.
+Splitting may only occur when the player has two cards and a player
+may split as much as he/she wishes.
+
+If a player has a blackjack and the value of the dealer's cards is
+less than 21, then the player is paid back 3:2.

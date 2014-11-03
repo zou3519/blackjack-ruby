@@ -11,6 +11,8 @@ class Game
   attr_accessor :dealer       # the dealer
   attr_accessor :deck         # a Deck instance
 
+  START_CASH = 1000
+
   def initialize
     puts "Welcome to Blackjack!"
     wait_for_newline
@@ -19,7 +21,7 @@ class Game
     num_players = get_num_players
 
     # get the initial cash
-    start_cash = get_start_cash
+    start_cash = START_CASH
 
     # create the players
     self.players = [];
@@ -45,7 +47,7 @@ class Game
     return num_players
   end
 
-  # prompt for how much each person should start with
+  # prompt for how much each person should start with. Not actually called.
   def get_start_cash
     start_cash = 
       prompt(
