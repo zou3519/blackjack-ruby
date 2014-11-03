@@ -1,8 +1,11 @@
+# just a few functions used to prompt the users
+
 def prompt(*args)
   print(*args)
   gets.chomp
 end
 
+# wait until there is an enter
 def wait_for_newline
   print "Press enter to continue..."
   gets

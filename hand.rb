@@ -17,10 +17,12 @@ class Hand
     self.can_have_blackjack = true
   end
 
+  # signify that this hand has finished play
   def end_play!
     self.finished_playing = true
   end
 
+  # double the bet.  Called in player's double down option
   def double_bet!
     self.bet = self.bet*2
   end
@@ -42,10 +44,12 @@ class Hand
       splittable
   end
 
+  # has the hand busted?
   def is_busted?
     self.value? > 21
   end
 
+  # is this hand a blackjack?
   def is_blackjack?
     self.can_have_blackjack and self.cards.length == 2 and self.value? == 21
   end

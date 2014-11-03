@@ -17,6 +17,7 @@ class Dealer < Player
     "Dealer"
   end
 
+  # dealer is always in the game
   def out?
     false
   end
