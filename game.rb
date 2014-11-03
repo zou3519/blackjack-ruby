@@ -10,10 +10,13 @@ class Game
   attr_accessor :players      # list of players.  the dealer is a player
   attr_accessor :dealer       # the dealer
   attr_accessor :deck         # a Deck instance
+  attr_accessor :is_game_over # is the game over yet?
 
   START_CASH = 1000
 
   def initialize
+    self.is_game_over = false
+
     puts "Welcome to Blackjack!"
     wait_for_newline
 
@@ -31,10 +34,12 @@ class Game
     self.dealer = Dealer.new
     self.players << self.dealer
 
-    # well, the game never ends
-    while true
+    # game won't end until all the players lose their money
+    while not is_game_over
       self.play_round
     end
+
+    puts "Game over! Thanks for playing!"
   end
 
   # prompt for the number of human players
@@ -86,8 +91,9 @@ class Game
     resolve_bets
     wait_for_newline
 
-    # finish with a summary of the round
+    # finish with a summary of the round and remove players with 0 cash
     print_round_summary
+    remove_players
   end
 
   # return all cards to dealer.  deck is automatically shuffled
@@ -105,6 +111,20 @@ class Game
   def deal_cards
     (0..1).each do |i|
       players.each { |player| player.draw(self.deck) }
+    end
+  end
+
+  # remove the players who have no cash left
+  def remove_players
+    to_remove = []
+    players.each do |player|
+      if player.out?
+        to_remove << player
+      end
+    end
+    to_remove.each { |player| players.delete(player) }
+    if players.length == 1
+      self.is_game_over = true
     end
   end
 
@@ -157,6 +177,15 @@ class Game
     clear_console
     puts "-------------------- Round Summary ----------------------"
     print_state_of_game(bet = false, only_first_card = false, show_val = true)
+
+    # say we're going to remove players.  
+    # actual removal occurs in remove_players
+    players.each do |player|
+      if player.out?
+        puts "Removing " + player.name? + " due to having $0 left."
+      end
+    end
+
     wait_for_newline
   end
 

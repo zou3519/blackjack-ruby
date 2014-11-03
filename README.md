@@ -55,3 +55,7 @@ If a player has a blackjack and the value of the dealer's cards is
 less than 21, then the player is paid back 3:2.  In this case,
 the amount of money the player receives is rounded up if it
 is fractional.
+
+If a player's cash reserves reach zero, he/she is 
+removed from the game.  When all human players are removed from the game,
+the game officially ends.  Press ctrl-c to stop the game otherwise.
