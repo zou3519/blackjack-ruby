@@ -91,9 +91,9 @@ class Player
     valid_options = OPTIONS
     ask_string = ASK_DEFAULT
 
-    # if it's the first turn, we should add double down 
+    # if the player has two cards, we should add double down 
     # and maybe split if applicable to valid_options
-    if first_turn == true and hand.bet <= self.cash
+    if hand.cards.length == 2 and hand.bet <= self.cash
       valid_options |= DOUBLE_DOWN
       ask_string += SEP + ASK_DOUBLE_DOWN
 
