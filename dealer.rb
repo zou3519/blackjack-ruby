@@ -42,7 +42,6 @@ class Dealer < Player
 					hand.end_play!
 				else
 					# dealer will hit until he gets >= 17 points
-					# parse the option
 					self.draw(game.deck, hand, silent = false)
 					self.check_busted hand
 				end

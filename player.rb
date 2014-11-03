@@ -10,11 +10,10 @@ class Player
   DOUBLE_DOWN = ["dd", "double down"]
   SPLIT = %w(sp split)
 
-  # what can happen on the first turn
-  FIRST_TURN_OPTIONS = HIT | STAND | DOUBLE_DOWN | SPLIT
-  # what can happen in general
+  # your default options
   OPTIONS = HIT | STAND
 
+  # some string constants
   SEP = "\n| "
   ASK_DEFAULT = "What would you like to do?"  + SEP+
       "stand: enter 'st' or 'stand'"  + SEP+
@@ -115,32 +114,17 @@ class Player
         option = prompt WRONG_INPUT
     end
 
-    # parse the options
+    # parse the options based on if they're in a set
     case option
     when *HIT
       self.hit(game, hand)
     when *STAND
       self.stand(game, hand)
     when *SPLIT
-      double_down(game, hand)
+      self.split(game, hand)
     else # double down
       self.double_down(game, hand) 
     end
-
-    # if HIT.include? option
-    #   self.hit(game, hand)
-
-    # elsif STAND.include? option
-    #   self.stand(game, hand)
-
-    # elsif DOUBLE_DOWN.include? option
-    #   self.double_down(game, hand)
-
-    # elsif SPLIT.include? option
-    #   self.split(game, hand)
-    # else
-    #   # never actually reached
-    # end
   end
 
   ################# Player choices on a hand ################
@@ -166,11 +150,9 @@ class Player
       # now, draw again
       self.draw game.deck, hand, silent = false
       self.check_busted hand
-      wait_for_newline
       hand.end_play!
     else
       puts "Insufficient funds."
-      wait_for_newline
     end
   end
 
@@ -181,7 +163,6 @@ class Player
       self.cash -= hand.bet
     else
       puts "Insufficient funds"
-      wait_for_newline
     end
   end
 
@@ -189,6 +170,7 @@ class Player
 
   # ask the player for an initial bet on hand[0]
   def make_initial_bet
+    clear_console
     puts("Player " + self.id.to_s + " you currently have $" + self.cash.to_s)
 
     # ask for a bet
