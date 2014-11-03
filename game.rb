@@ -76,6 +76,7 @@ class Game
 
     # if the dealer has blackjack, play immediately ends
     if (dealer.hands[0].is_blackjack?)
+      clear_console
       puts "Dealer has blackjack!"
       print_state_of_game
       wait_for_newline

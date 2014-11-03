@@ -59,3 +59,6 @@ is fractional.
 If a player's cash reserves reach zero, he/she is 
 removed from the game.  When all human players are removed from the game,
 the game officially ends.  Press ctrl-c to stop the game otherwise.
+
+The program has only been tested under Windows 8.1 running Ruby 1.8.7.
+It should work on other operating systems running the same version of Ruby.
