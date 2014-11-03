@@ -6,6 +6,7 @@ require 'deck'
 class Hand
   
   attr_accessor :cards, :bet, :finished_playing, :splittable
+  attr_accessor :can_have_blackjack
 
   # by default, we can split a hand
   def initialize (splittable = true)
@@ -13,6 +14,7 @@ class Hand
     self.bet = 0
     self.finished_playing = false
     self.splittable = splittable
+    self.can_have_blackjack = true
   end
 
   def end_play!
@@ -25,18 +27,27 @@ class Hand
 
   # assuming that we're splittable, return one of the two cards
   def split!
-    return cards.pop
+    self.can_have_blackjack = false
+    new_hand = Hand.new
+    new_hand.cards << self.cards.pop
+    new_hand.bet = self.bet
+    new_hand.can_have_blackjack = false
+    return new_hand
   end
 
   # can we split the hand, assuming sufficient funds?
   def can_split?
     self.cards.length == 2 and 
-      self.cards[0].rank == self.cards[1].rank and
+      self.cards[0].value == self.cards[1].value and
       splittable
   end
 
   def is_busted?
     self.value? > 21
+  end
+
+  def is_blackjack?
+    self.can_have_blackjack and self.cards.length == 2 and self.value? == 21
   end
 
   # compute the value of the hand
@@ -65,13 +76,41 @@ class Hand
     return value
   end
 
-  def to_string
+  # turns the hand to string.
+  # => show_bet = true will show the bet value of the hand
+  # => only_first_card = true will show only the first card
+  # => show_value will print the value of the hand (if not busted)
+  def to_string (show_bet = false, only_first_card = false, 
+    show_value = false)
+
     result = ""
-    cards.each do |card| 
-      if result != "" 
+
+    # display the bet
+    if show_bet
+      result += "bet: $" + self.bet.to_s + " | "
+    end
+
+    # display a busted keyword
+    if self.is_busted?
+      result += "busted! | "
+    end
+
+    # display the list of cards
+    cards.each_index do |c| 
+      card = cards[c]
+      if c > 0 
         result += ", "
       end
-      result += card.to_string 
+      if only_first_card and c >= 1
+        result += "<hidden card>"
+      else
+        result += card.to_string 
+      end
+    end
+
+    # display value only if not busted and show_value is on
+    if show_value and not self.is_busted?
+      result += " | " + "value: " + self.value?.to_s
     end
     return result
   end

@@ -8,7 +8,7 @@ class Player
   HIT = %w(h hit) 
   STAND = %w(st stand)
   DOUBLE_DOWN = ["dd", "double down"]
-  SPLIT = %w(sp, split)
+  SPLIT = %w(sp split)
 
   # what can happen on the first turn
   FIRST_TURN_OPTIONS = HIT | STAND | DOUBLE_DOWN | SPLIT
@@ -24,22 +24,25 @@ class Player
   WRONG_INPUT = "I can't recognize your input. Try again: "
 
   attr_accessor :id     # player identifier
-  attr_accessor :turn_over # is your turn over?
   attr_accessor :cash   # how much cash do you have?
-  #attr_accessor :bet    # player's bet for the round
-  #attr_accessor :busted   # are you busted?
-
-  #attr_accessor :cards  # what cards you have
-  #attr_accessor :split  # true if the player called split at some point
-  #attr_accessor :cards_second # if the player called a split, the second row
-
   attr_accessor :hands  # array of hands. You usually have one hand
                         # => but you can have a second one if you split
+  attr_accessor :current_hand_index # for printing purposes
 
   def initialize(id, cash)
     self.id = id
     self.cash = cash
     self.reset_cards
+  end
+
+  # construct the player's name. 
+  def name?
+    "Player " + self.id.to_s
+  end
+
+  # is the player out of money?
+  def out?
+    self.cash <= 0
   end
 
   # ask the player for an initial bet on hand[0]
@@ -60,7 +63,12 @@ class Player
 
   # you can win your bet on a hand
   def win_bet(hand)
-    self.cash += 2*hand.bet
+    # if you have a blackjack, win 3:2 and get original bet back
+    if hand.is_blackjack?
+      self.cash += hand.bet + 1.5*hand.bet
+    else
+      self.cash += 2*hand.bet
+    end
   end
 
   # have your bet returned if you are tied with dealer
@@ -70,7 +78,7 @@ class Player
 
   # lose the bet (bet goes to dealer)
   def lose_bet(hand)
-    hand.bet = 0
+    #hand.bet = 0
   end 
 
   # the main loop of a player's turn
@@ -80,21 +88,34 @@ class Player
     self.hands.each do |hand|
       # turn counter for hand
       turn = 0
-
+      self.current_hand_index += 1
       while not hand.finished_playing
         # print the state
         clear_console
         print "Player " + self.id.to_s + "'s turn.\n"
-        game.print_state_of_game
+        game.print_state_of_game(
+          bet = true, dealer_only_first_card = true, show_val = false)
 
-        # ask for the input
-        process_options game, hand, first_turn = (turn == 0)
+        if hand.is_blackjack?
+          puts "Blackjack!"
+          hand.end_play!
+          wait_for_newline
+        else 
+          # ask for the input
+          process_options game, hand, first_turn = (turn == 0)
+        end
 
         turn += 1 #increment turn counter
       end
     end
 
+    self.current_hand_index += 1
   end
+
+  # # check if you have a blackjack
+  # def has_blackjack?(hand)
+  #   hand.can_have_blackjack and hand.cards.length == 2 and hand.value? == 21
+  # end
 
   # asks the player what he/she would like to do with the hand
   def process_options(game, hand, first_turn = false)
@@ -131,7 +152,7 @@ class Player
 
     elsif STAND.include? option
       puts "You decided to stand."
-      hand.finished_playing = true
+      hand.end_play!
       wait_for_newline
 
     elsif DOUBLE_DOWN.include? option
@@ -143,7 +164,6 @@ class Player
 
         # now, draw again
         self.draw game.deck, hand, silent = false
-        game.print_state_of_game
         self.check_busted hand
         wait_for_newline
         hand.end_play!
@@ -154,9 +174,13 @@ class Player
 
     elsif SPLIT.include? option
       puts "You chose split!"
-      self.split = true
-      next_hand = Hand.new << hand.split!
-      self.hands << Hand.new
+      if self.cash >= hand.bet
+        self.hands << hand.split!
+        self.cash -= hand.bet
+      else
+        puts "Insufficient funds"
+        wait_for_newline
+      end
     else
       # never actually reached
     end
@@ -164,6 +188,7 @@ class Player
 
   def reset_cards
     self.hands = [Hand.new]
+    self.current_hand_index = -1
   end
 
   # draw a card from the deck into a hand
@@ -172,7 +197,7 @@ class Player
     card = deck.draw 
     hand.cards << card 
     if not silent
-      print card.to_string + " drawn."
+      print card.to_string + " drawn. "
       wait_for_newline
     end
   end
@@ -180,69 +205,34 @@ class Player
   # check if a hand has been busted
   def check_busted (hand)
     if hand.is_busted?
-      puts "Busted!"
-      wait_for_newline
+      puts "Busted!"      
       self.lose_bet(hand)
       hand.end_play!
+      wait_for_newline
     end
   end
 
-  # def value_of_cards
-  #   value = 0  
-  #   num_aces = 0
-  #   for card in self.cards
-  #     if card.rank == "Ace"
-  #       num_aces += 1
-  #     end
-  #     value += card.value
-  #   end
-
-  #   counter = 0
-  #   while value > 21 && counter < num_aces
-  #     counter += 1
-  #     value -= 10
-  #   end
-  #   return value
-  # end
-
-  # def cards_to_string
-  #   s = ""
-  #   for card in cards
-  #     if not s.eql? ""
-  #       s += ", "
-  #     end
-  #     s += card.to_string
-  #   end
-  #   return s
-  # end
-
-  def to_string_short
+  # string representation of player
+  def to_string(show_bet=true, only_first_card = false, value = false)
     sep = " | "
-    result = "Player " + self.id.to_s + sep + "$" + self.cash.to_s + "\n"
-    hands.each do |hand|
-      result += "\\ bet: " + hand.bet.to_s + sep
-      if hand.is_busted?
-        result += "<busted>" + sep
+
+    # print name and cash
+    result = "| " + self.name? + sep 
+    result += "$" + self.cash.to_s + "\n"
+
+    # print each hand
+    hands.each_index do |h|
+      hand = hands[h]
+      result += " \\ " + hand.to_string(show_bet, only_first_card, value)
+      if h == self.current_hand_index
+        result += " <- current"
       end
-      result += "hand: "
-      result += hand.to_string + "\n"
+      result += "\n"
     end
     return result
   end
 
-  # def to_string
-  #   sep = "\n| "
-  #   s = "Player " + self.id.to_s + sep + "$" + self.cash.to_s + sep 
-  #   # s += "Bet: " + self.bet.to_s + sep
-  #   if self.busted
-  #     s += "Value of cards: busted" + sep
-  #   else
-  #     s += "Value of cards: " + self.value_of_cards.to_s + sep
-  #   end
-  #   s += "Cards: " + self.cards_to_string + "\n" 
-  # end
-
-  def is_dealer
+  def is_dealer?
     self.id == DEALER_ID
   end
 end

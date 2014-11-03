@@ -12,19 +12,29 @@ class Dealer < Player
 		self.id = DEALER_ID
 	end
 
+  # construct the player's name. 
+  def name?
+    "Dealer"
+  end
+
+  def out?
+    false
+  end
+
 	# dealer makes no bets
 	def make_initial_bet ; end
 	def win_bet(hand) ; end
 	def lose_bet(hand) ; end
 
+  # dealer's turn is deterministic
 	def take_turn(game)
-
     self.hands.each do |hand|
       while not hand.finished_playing
         # print the state
 				clear_console
 				puts DEALER_TURN
-        game.print_state_of_game
+        game.print_state_of_game(
+          bet = true, dealer_only_first_card = false, show_val = false)
 
         # ask for the input
 		    if hand.value? >= 17 and not hand.is_busted?
@@ -38,32 +48,17 @@ class Dealer < Player
       end
     end
     puts "The dealer ends his turn."
-    wait_for_newline
   end
 
-
-	# def to_string
-	# 	sep = "\n| "
-	# 	s = "Dealer" + sep
-	# 	if self.busted
-	# 		s += "Value of cards: busted" + sep
-	# 	else
-	# 		s += "Value of cards: " + self.value_of_cards.to_s + sep
-	# 	end
-	# 	s += self.cards_to_string + "\n" 
-	# 	return s
-	# end
-
-  def to_string_short
+  # string representation of dealer
+  def to_string(show_bet=false, only_first_card = false, value = false)
     sep = " | "
-    result = "Dealer\n"
+
+    result = "| Dealer\n"
     hands.each do |hand|
-      result += "\\ "
-      if hand.is_busted?
-        result += "<busted>" + sep
-      end
-      result += "hand: "
-      result += hand.to_string + "\n"
+      # dealer has no bets, so don't show the bet.
+      result += " \\ " + hand.to_string(false, only_first_card, value)
+      result += "\n"
     end
     return result
   end
