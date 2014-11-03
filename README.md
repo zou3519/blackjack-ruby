@@ -18,9 +18,9 @@ Type
 
     ruby blackjack.rb
 
-at the commandline.
+at the command-line.
 You will be prompted for a number of human players and the starting
-cash for each person.  Follow the instructions on-screen for gameplay.
+cash for each person.  Follow the instructions on-screen for game play.
 
 Files
 =====================
