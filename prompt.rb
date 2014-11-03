@@ -21,5 +21,6 @@ def prompt_for_natural_number(ask, reprompt)
 end
 
 def clear_console
+  print "\n\n" # just in case the console doesn't clear
   system "clear" or system "cls"
 end

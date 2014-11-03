@@ -174,7 +174,8 @@ class Player
     puts("Player " + self.id.to_s + " you currently have $" + self.cash.to_s)
 
     # ask for a bet
-    bet =  prompt("Player " + self.id.to_s + " make a bet!\n").to_i
+    bet =  
+      prompt("Player " + self.id.to_s + " make a bet!\nEnter a number: $").to_i
     while bet <= 0 or bet > self.cash
       bet = prompt(
         "You can make bets of between $1 and $" + self.cash.to_s + ": ").to_i

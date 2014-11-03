@@ -37,7 +37,8 @@ class Game
 
   # prompt for the number of human players
   def get_num_players
-    num_players = prompt("How many people are playing?\n").to_i
+    num_players = 
+      prompt("How many people are playing?\nEnter a number: ").to_i
     while num_players <= 0
       num_players = prompt("Enter a number greater than 0: ").to_i
     end
@@ -47,7 +48,8 @@ class Game
   # prompt for how much each person should start with
   def get_start_cash
     start_cash = 
-      prompt("How much money should everyone start with?\n").to_i
+      prompt(
+        "How much money should everyone start with?\nEnter a number: $").to_i
     while start_cash <= 0
       start_cash = prompt("Enter a number greater than 0: ").to_i
     end
@@ -120,7 +122,7 @@ class Game
         end
       end
 
-    # Case 2: dealer does not have blackjack and he is not busted.
+    # Case 2: dealer is not bust
     # => if a hand went bust, do nothing
     # => otherwise, if the hand's value is greater, the hand wins the bet
     # => otherwise, if the hand's value is smaller, the hand wins the bet
@@ -139,7 +141,7 @@ class Game
             else # dealer and player are tied
               player.return_bet hand 
             end
-            
+
           end
         end
       end
