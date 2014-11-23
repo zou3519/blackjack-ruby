@@ -3,6 +3,8 @@ Blackjack in Ruby
 
 By Richard Zou
 
+Last updated November 2014
+
 Introduction
 =====================
 
